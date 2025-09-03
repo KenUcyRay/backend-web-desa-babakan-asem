@@ -29,4 +29,18 @@ export class MapController {
       next(error);
     }
   }
+
+  static async update(req: UserRequest, res: Response, next: NextFunction) {
+    try {
+      console.log(req.body);
+      const response = await MapService.update(
+        req.params.id,
+        req.body,
+        req.file
+      );
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

@@ -118,6 +118,9 @@ model Map {
   year        Int
   coordinates Json
   icon        String?
+  radius      Int?
+  color       String?  @db.VarChar(9)
+  area        Decimal? @db.Decimal(15, 2)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 

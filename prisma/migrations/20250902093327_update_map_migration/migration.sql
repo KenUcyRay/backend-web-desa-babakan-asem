@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE `maps` ADD COLUMN `area` DECIMAL(15, 2) NULL,
+    ADD COLUMN `color` VARCHAR(9) NULL,
+    ADD COLUMN `radius` INTEGER NULL;

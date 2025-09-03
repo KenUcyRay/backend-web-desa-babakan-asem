@@ -64,7 +64,7 @@ adminRouter.patch(
   upload.single("profile_photo"),
   MemberController.updateMember
 );
-adminRouter.delete( 
+adminRouter.delete(
   "/organizations/members/:memberId",
   MemberController.deleteMember
 );
@@ -115,6 +115,7 @@ adminRouter.delete("/galeri/:galeriId", GaleriController.delete);
 //Map
 adminRouter.post("/maps", upload.single("icon"), MapController.create);
 adminRouter.get("/maps", MapController.getAll);
+adminRouter.patch("/maps/:id", upload.single("icon"), MapController.update);
 adminRouter.delete("/maps/:id", MapController.delete);
 
 // Activity Log
@@ -162,7 +163,6 @@ adminRouter.delete(
   "/village-achievements/:id",
   VillageAchievementController.delete
 );
-
 
 // Apb
 adminRouter.post("/apb", ApbController.create);

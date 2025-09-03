@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import { prismaClient } from "@/application/database";
 import { ResponseError } from "@/error/response-error";
-import { CreateMapRequest } from "@/model/map-model";
+import { CreateMapRequest, UpdateMapRequest } from "@/model/map-model";
 import { MapValidation } from "@/validation/map-validation";
 import { Validation } from "@/validation/validation";
 import { MapType } from "@prisma/client";
@@ -61,5 +61,30 @@ export class MapService {
       await fs.unlink(filePath);
     }
   }
+  static async update(
+    id: string,
+    body: UpdateMapRequest,
+    icon?: Express.Multer.File
+  ) {
+    const map = await prismaClient.map.findUnique({
+      where: { id },
+    });
+    if (!map) {
+      throw new ResponseError(404, "Map not found");
+    }
 
+    body = Validation.validate(MapValidation.update, body);
+    if (icon) {
+      body.icon = icon.filename;
+    } else {
+      body.icon = undefined;
+    }
+
+    const updatedMap = await prismaClient.map.update({
+      where: { id },
+      data: body,
+    });
+
+    return { data: updatedMap };
+  }
 }
