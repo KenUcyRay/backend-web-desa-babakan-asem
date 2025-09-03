@@ -30,7 +30,7 @@ web.use(
 
 // API routes
 web.use("/api", publicRouter);
-adminRouter.get("/api/admin/maps", MapController.getAll);
+web.get("/api/admin/maps", MapController.getAll);
 
 web.use("/api/private", privateRouter);
 web.use("/api/admin", adminRouter);
