@@ -7,6 +7,6 @@ export interface CreateEmergencyRequest {
 
 export interface QueryEmergencyRequest {
   page?: number;
-  size?: number;
+  limit?: number;
   is_handled?: boolean;
 }

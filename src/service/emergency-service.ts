@@ -18,8 +18,8 @@ export class EmergencyService {
       orderBy: {
         created_at: "desc",
       },
-      skip: (query.page! - 1) * query.size!,
-      take: query.size,
+      skip: (query.page! - 1) * query.limit!,
+      take: query.limit,
     });
 
     const totalPage = await prismaClient.emergency.count({
@@ -30,8 +30,8 @@ export class EmergencyService {
 
     return {
       page: query.page,
-      size: query.size,
-      total_page: Math.ceil(totalPage / query.size!),
+      limit: query.limit,
+      total_page: Math.ceil(totalPage / query.limit!),
       data: emergencies,
     };
   }
@@ -79,8 +79,6 @@ export class EmergencyService {
     await prismaClient.emergency.delete({
       where: { id },
     });
-
-
   }
   static async count() {
     const isNotHandled = await prismaClient.emergency.count({
