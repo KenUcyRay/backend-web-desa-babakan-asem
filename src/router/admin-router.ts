@@ -21,6 +21,7 @@ import { UserController } from "@/controller/user-controller";
 import { ActivityLogController } from "@/controller/activity-log-controller";
 import { MapController } from "@/controller/map-controller";
 import { SiteContentController } from "@/controller/site-content-controller";
+import { EmergencyController } from "@/controller/emergency-controller";
 
 export const adminRouter = express.Router();
 
@@ -89,6 +90,12 @@ adminRouter.delete(
 
 adminRouter.use(roleMiddleware(Role.ADMIN));
 
+// Emergency
+adminRouter.get("/emergencies", EmergencyController.getAll);
+adminRouter.patch("/emergencies/:id", EmergencyController.update);
+adminRouter.delete("/emergencies/:id", EmergencyController.delete);
+adminRouter.get("/emergencies/count", EmergencyController.count);
+
 // Site Content
 // adminRouter.post(
 //   "/site-contents",
@@ -114,7 +121,6 @@ adminRouter.delete("/galeri/:galeriId", GaleriController.delete);
 
 //Map
 adminRouter.post("/maps", upload.single("icon"), MapController.create);
-adminRouter.get("/maps", MapController.getAll);
 adminRouter.patch("/maps/:id", upload.single("icon"), MapController.update);
 adminRouter.delete("/maps/:id", MapController.delete);
 

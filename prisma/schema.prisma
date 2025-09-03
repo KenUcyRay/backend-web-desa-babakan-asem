@@ -91,6 +91,23 @@ enum Organization {
 
 //Rill Fix
 
+model Emergency {
+  id         String   @id @default(uuid())
+  user_id    String
+  message    String   @db.Text
+  latitude   String   @db.VarChar(50)
+  longitude  String   @db.VarChar(50)
+  is_handled Boolean  @default(false)
+  phone_number String   @db.VarChar(20)
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("emergencies")
+}
+
 model SiteContent {
   id         String          @id @default(uuid())
   key        String          @unique @db.VarChar(255)
@@ -140,18 +157,20 @@ model ActivityLog {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  name         String   @db.VarChar(255)
-  phone_number String?  @db.VarChar(20)
-  email        String?  @db.VarChar(255)
-  password     String   @db.VarChar(255)
-  role         Role
-  reset_token  String?  @db.VarChar(500)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id               String   @id @default(uuid())
+  name             String   @db.VarChar(255)
+  phone_number     String?  @db.VarChar(20)
+  email            String?  @db.VarChar(255)
+  password         String   @db.VarChar(255)
+  role             Role
+  reset_token      String?  @db.VarChar(500)
+  emergency_change Int      @default(5)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
 
   comments    Comment[]
   ActivityLog ActivityLog[]
+  Emergency   Emergency[]
 
   @@map("users")
 }

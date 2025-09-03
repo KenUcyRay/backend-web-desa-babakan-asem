@@ -8,6 +8,7 @@ import { i18nMiddleware } from "@/middleware/i18n-middleware";
 import path from "node:path";
 import cookieParser from "cookie-parser";
 import { setupSwagger } from "./swagger";
+import { MapController } from "@/controller/map-controller";
 
 export const web = express();
 
@@ -29,6 +30,8 @@ web.use(
 
 // API routes
 web.use("/api", publicRouter);
+adminRouter.get("/api/admin/maps", MapController.getAll);
+
 web.use("/api/private", privateRouter);
 web.use("/api/admin", adminRouter);
 
