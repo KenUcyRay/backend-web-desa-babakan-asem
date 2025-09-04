@@ -23,7 +23,7 @@ web.use(express.json());
 
 web.use(i18nMiddleware);
 
-web.get("ping", (req, res) => {
+web.get("/ping", (req, res) => {
   res.status(200).json({ message: "pong" });
 });
 
