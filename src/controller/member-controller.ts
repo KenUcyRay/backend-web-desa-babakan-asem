@@ -9,9 +9,7 @@ export class MemberController {
     try {
       let organizationType: Organization | undefined = req.query
         .organizationType as Organization | undefined;
-      if (req.query.organizationType === Organization.DPD) {
-        organizationType = Organization.DPD;
-      } else if (req.query.organizationType === Organization.KARANG_TARUNA) {
+      if (req.query.organizationType === Organization.KARANG_TARUNA) {
         organizationType = Organization.KARANG_TARUNA;
       } else if (req.query.organizationType === Organization.PEMERINTAH) {
         organizationType = Organization.PEMERINTAH;
@@ -43,9 +41,7 @@ export class MemberController {
     try {
       let organizationType: Organization | undefined = req.query
         .organizationType as Organization | undefined;
-      if (req.query.organizationType === Organization.DPD) {
-        organizationType = Organization.DPD;
-      } else if (req.query.organizationType === Organization.KARANG_TARUNA) {
+      if (req.query.organizationType === Organization.KARANG_TARUNA) {
         organizationType = Organization.KARANG_TARUNA;
       } else if (req.query.organizationType === Organization.PEMERINTAH) {
         organizationType = Organization.PEMERINTAH;
