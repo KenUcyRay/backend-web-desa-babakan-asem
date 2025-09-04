@@ -23,6 +23,10 @@ web.use(express.json());
 
 web.use(i18nMiddleware);
 
+web.get("ping", (req, res) => {
+  res.status(200).json({ message: "pong" });
+});
+
 web.use(
   "/api/public/images",
   express.static(path.join(__dirname, "..", "..", "public", "images"))
