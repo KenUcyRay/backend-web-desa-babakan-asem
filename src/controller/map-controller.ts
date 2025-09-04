@@ -32,7 +32,6 @@ export class MapController {
 
   static async update(req: UserRequest, res: Response, next: NextFunction) {
     try {
-      console.log(req.body);
       const response = await MapService.update(
         req.params.id,
         req.body,

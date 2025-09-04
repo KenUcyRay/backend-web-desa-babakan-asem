@@ -58,6 +58,7 @@ export interface UserResponse {
   role: Role;
   created_at: Date;
   updated_at: Date;
+  emergency_change: number;
 }
 export interface UserAllResponse {
   size: number;
@@ -74,6 +75,7 @@ export const toUserResponse = (user: User): UserResponse => {
     role: user.role,
     created_at: user.created_at,
     updated_at: user.updated_at,
+    emergency_change: user.emergency_change,
   };
 };
 export const toUserAllResponse = (

@@ -5,8 +5,10 @@ export class EmergencyValidation {
     .object({
       phone_number: z.string().min(10).max(15),
       message: z.string().min(5).max(500),
-      latitude: z.string().regex(/^-?\d+(\.\d+)?$/, "Invalid latitude"),
-      longitude: z.string().regex(/^-?\d+(\.\d+)?$/, "Invalid longitude"),
+      latitude: z.coerce.string().regex(/^-?\d+(\.\d+)?$/, "Invalid latitude"),
+      longitude: z.coerce
+        .string()
+        .regex(/^-?\d+(\.\d+)?$/, "Invalid longitude"),
     })
     .strict();
 

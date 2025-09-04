@@ -20,6 +20,16 @@ export class EmergencyService {
       },
       skip: (query.page! - 1) * query.limit!,
       take: query.limit,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            phone_number: true,
+            email: true,
+          },
+        },
+      },
     });
 
     const totalPage = await prismaClient.emergency.count({
@@ -47,6 +57,14 @@ export class EmergencyService {
         longitude: body.longitude,
       },
     });
+
+    await prismaClient.user.update({
+      where: { id: user.id },
+      data: {
+        emergency_change: user.emergency_change - 1,
+      },
+    });
+
     return { data: emergency };
   }
   static async update(id: string) {
@@ -62,6 +80,13 @@ export class EmergencyService {
       where: { id },
       data: {
         is_handled: true,
+      },
+    });
+
+    await prismaClient.user.update({
+      where: { id: emergency.user_id },
+      data: {
+        emergency_change: 3,
       },
     });
 
