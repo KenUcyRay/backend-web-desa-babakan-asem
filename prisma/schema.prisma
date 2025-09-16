@@ -419,3 +419,16 @@ model Apb {
 
   @@map("apb")
 }
+
+model Regulation {
+  id        Int      @id @default(autoincrement())
+  title     String
+  year      Int
+  filePath  String
+  fileName  String
+  fileSize  BigInt?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("regulations")
+}

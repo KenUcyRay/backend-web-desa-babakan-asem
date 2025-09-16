@@ -19,9 +19,15 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
     "seed": "ts-node src/seeder/resident-seeder.ts",
     "seed-map": "ts-node src/seeder/seed.ts",
-    "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
+    "seed-admin": "ts-node src/seeder/admin-seeder.ts",
+    "migrate": "npx prisma migrate dev",
+    "migrate:deploy": "npx prisma migrate deploy",
+    "generate": "npx prisma generate",
+    "db:push": "npx prisma db push",
+    "db:studio": "npx prisma studio",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

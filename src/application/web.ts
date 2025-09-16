@@ -32,6 +32,11 @@ web.use(
   express.static(path.join(__dirname, "..", "..", "public", "images"))
 );
 
+web.use(
+  "/api/public/regulations",
+  express.static(path.join(__dirname, "..", "..", "uploads", "regulations"))
+);
+
 // API routes
 web.use("/api", publicRouter);
 web.get("/api/admin/maps", MapController.getAll);

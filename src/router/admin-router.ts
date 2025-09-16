@@ -22,6 +22,8 @@ import { ActivityLogController } from "@/controller/activity-log-controller";
 import { MapController } from "@/controller/map-controller";
 import { SiteContentController } from "@/controller/site-content-controller";
 import { EmergencyController } from "@/controller/emergency-controller";
+import { RegulationController } from "@/controller/regulation-controller";
+import { regulationUpload } from "@/application/regulation-multer";
 
 export const adminRouter = express.Router();
 
@@ -41,7 +43,7 @@ adminRouter.patch(
 );
 adminRouter.delete("/news/:newsId", NewsController.delete);
 
-//Program PKK Ke PKk
+// Program PKK
 adminRouter.post(
   "/programs",
   upload.single("featured_image"),
@@ -71,7 +73,7 @@ adminRouter.delete(
 );
 adminRouter.get("/organizations/members", MemberController.getAllMembers);
 
-// Agenda // PKK, BPD,  Karang Taruna
+// Agenda
 adminRouter.get("/agenda/me", AgendaController.getOwn);
 adminRouter.post(
   "/agenda/create",
@@ -96,20 +98,6 @@ adminRouter.patch("/emergencies/:id", EmergencyController.update);
 adminRouter.delete("/emergencies/:id", EmergencyController.delete);
 adminRouter.get("/emergencies/count", EmergencyController.count);
 
-// Site Content
-// adminRouter.post(
-//   "/site-contents",
-//   upload.single("file"),
-//   SiteContentController.create
-// );
-// adminRouter.get("/site-contents", SiteContentController.getAll);
-// adminRouter.patch(
-//   "/site-contents/:id",
-//   upload.single("file"),
-//   SiteContentController.update
-// );
-// adminRouter.delete("/site-contents/:id", SiteContentController.delete);
-
 // Galeri
 adminRouter.post("/galeri", upload.single("image"), GaleriController.create);
 adminRouter.put(
@@ -119,7 +107,7 @@ adminRouter.put(
 );
 adminRouter.delete("/galeri/:galeriId", GaleriController.delete);
 
-//Map
+// Map
 adminRouter.post("/maps", upload.single("icon"), MapController.create);
 adminRouter.patch("/maps/:id", upload.single("icon"), MapController.update);
 adminRouter.delete("/maps/:id", MapController.delete);
@@ -197,7 +185,6 @@ adminRouter.patch(
 );
 
 // Products
-
 adminRouter.get("/products/categories", CategoryController.getCategories);
 adminRouter.post("/products/categories", CategoryController.createCategory);
 adminRouter.put(
@@ -224,3 +211,19 @@ adminRouter.delete(
   "/products/delete-by-product/:productId",
   ProductController.delete
 );
+
+// Regulations
+adminRouter.post(
+  "/regulations",
+  regulationUpload.single("file"),
+  RegulationController.create
+);
+adminRouter.put(
+  "/regulations/:id",
+  regulationUpload.single("file"),
+  RegulationController.update
+);
+adminRouter.delete("/regulations/:id", RegulationController.delete);
+
+// ✅ Tambahan route untuk preview regulasi
+adminRouter.get("/regulations/:id/preview", RegulationController.preview);
