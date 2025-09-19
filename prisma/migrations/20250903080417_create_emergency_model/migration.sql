@@ -5,6 +5,7 @@ ALTER TABLE `users` ADD COLUMN `emergency_change` INTEGER NOT NULL DEFAULT 5;
 CREATE TABLE `emergencies` (
     `id` VARCHAR(191) NOT NULL,
     `user_id` VARCHAR(191) NOT NULL,
+    `phone_number` VARCHAR(20) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `message` TEXT NOT NULL,
     `latitude` VARCHAR(50) NOT NULL,

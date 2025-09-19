@@ -1,11 +1,18 @@
-import { string, z, ZodType } from "zod";
+import { z, ZodType } from "zod";
 
 export class EmergencyValidation {
   static create: ZodType = z
     .object({
-      phone_number: z.string().min(10).max(15),
+      phone_number: z
+        .string()
+        .min(10, "Nomor minimal 10 digit")
+        .max(15, "Nomor maksimal 15 digit")
+        .optional()
+        .nullable(), // ✅ opsional
       message: z.string().min(5).max(500),
-      latitude: z.coerce.string().regex(/^-?\d+(\.\d+)?$/, "Invalid latitude"),
+      latitude: z.coerce
+        .string()
+        .regex(/^-?\d+(\.\d+)?$/, "Invalid latitude"),
       longitude: z.coerce
         .string()
         .regex(/^-?\d+(\.\d+)?$/, "Invalid longitude"),

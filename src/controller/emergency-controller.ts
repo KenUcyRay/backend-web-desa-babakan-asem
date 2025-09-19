@@ -12,13 +12,19 @@ export class EmergencyController {
     }
   }
   static async create(req: UserRequest, res: Response, next: NextFunction) {
-    try {
-      const response = await EmergencyService.create(req.user!, req.body);
-      res.status(201).json(response);
-    } catch (error) {
-      next(error);
+  try {
+    if (req.user?.role !== "REGULAR") {
+      return res.status(403).json({
+        error: "Hanya user REGULAR yang bisa menggunakan emergency",
+      });
     }
+
+    const response = await EmergencyService.create(req.user!, req.body);
+    res.status(201).json(response);
+  } catch (error) {
+    next(error);
   }
+}
   static async update(req: UserRequest, res: Response, next: NextFunction) {
     try {
       const response = await EmergencyService.update(req.params.id);

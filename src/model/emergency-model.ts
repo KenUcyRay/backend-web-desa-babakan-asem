@@ -1,5 +1,5 @@
 export interface CreateEmergencyRequest {
-  phone_number: string;
+  phone_number?: string | null;
   message: string;
   latitude: string;
   longitude: string;

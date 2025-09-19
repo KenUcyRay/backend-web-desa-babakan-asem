@@ -11,6 +11,7 @@ import { Validation } from "@/validation/validation";
 export class EmergencyService {
   static async getAll(query: QueryEmergencyRequest) {
     query = Validation.validate(EmergencyValidation.query, query);
+
     const emergencies = await prismaClient.emergency.findMany({
       where: {
         is_handled: query.is_handled,
@@ -45,28 +46,61 @@ export class EmergencyService {
       data: emergencies,
     };
   }
+
   static async create(user: UserResponse, body: CreateEmergencyRequest) {
     body = Validation.validate(EmergencyValidation.create, body);
 
+    // 1️⃣ cek apakah user sedang diblokir
+    const currentUser = await prismaClient.user.findUnique({
+      where: { id: user.id },
+    });
+
+    if (
+      currentUser?.emergency_blocked_until &&
+      currentUser.emergency_blocked_until > new Date()
+    ) {
+      throw new ResponseError(
+        403,
+        `Akun diblokir sampai ${currentUser.emergency_blocked_until.toLocaleString()}`
+      );
+    }
+
+    // 2️⃣ buat emergency baru
     const emergency = await prismaClient.emergency.create({
       data: {
         user_id: user.id,
-        phone_number: body.phone_number,
+        phone_number: body.phone_number || null, // ✅ boleh string/null/undefined
         message: body.message,
         latitude: body.latitude,
         longitude: body.longitude,
       },
     });
 
-    await prismaClient.user.update({
-      where: { id: user.id },
-      data: {
-        emergency_change: user.emergency_change - 1,
-      },
-    });
+    // 3️⃣ kurangi jumlah kesempatan (emergency_change)
+    const newChange = user.emergency_change - 1;
+
+    if (newChange <= 0) {
+      // kalau sudah habis → blokir 1 menit
+      const blockUntil = new Date(Date.now() + 1 * 60 * 1000); // ⏰ 1 menit
+      await prismaClient.user.update({
+        where: { id: user.id },
+        data: {
+          emergency_change: 0,
+          emergency_blocked_until: blockUntil,
+        },
+      });
+    } else {
+      await prismaClient.user.update({
+        where: { id: user.id },
+        data: {
+          emergency_change: newChange,
+        },
+      });
+    }
 
     return { data: emergency };
   }
+
   static async update(id: string) {
     const emergency = await prismaClient.emergency.findUnique({
       where: { id },
@@ -92,6 +126,7 @@ export class EmergencyService {
 
     return { data: updatedEmergency };
   }
+
   static async delete(id: string) {
     const emergency = await prismaClient.emergency.findUnique({
       where: { id },
@@ -105,6 +140,7 @@ export class EmergencyService {
       where: { id },
     });
   }
+
   static async count() {
     const isNotHandled = await prismaClient.emergency.count({
       where: { is_handled: false },

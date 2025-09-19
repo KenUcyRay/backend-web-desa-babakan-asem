@@ -8,103 +8,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enum
-
-enum ResidentType {
-  GENDER
-  PERNIKAHAN
-  AGAMA
-  USIA
-  KEPALA_KELUARGA
-  PERKERJAAN
-  PENDIDIKAN
-  WAJIB_PILIH
-  DUSUN
-  ANAK_ANAK
-}
-
-enum Role {
-  REGULAR // Regular user with basic access
-  ADMIN
-  PKK
-  KARANG_TARUNA
-  BPD
-  CONTRIBUTOR
-}
-
-enum MapType {
-  POLYGON
-  MARKER
-}
-
-enum ActivityLogLocation {
-  NEWS
-  AGENDA
-  GALLERY
-  MESSAGE
-  BUMDES
-  VILLAGEWORKPROGRAM
-  USER
-}
-
-enum VillageWorkProgramStatus {
-  PLANNED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-}
-
-enum TargetType {
-  NEWS
-  AGENDA
-  PRODUCT
-}
-
-enum AgendaType {
-  REGULAR
-  PKK
-  KARANG_TARUNA
-  BPD
-}
-
-enum StatusDesa {
-  MAJU
-  BERKEMBANG
-  MANDIRI
-  TERTINGGAL
-  SANGAT_TERTINGGAL
-}
-
-enum PengantarType {
-  KTP
-  KK
-  SKCK
-  LAINNYA
-}
-
-enum Organization {
-  PEMERINTAH
-  PKK
-  KARANG_TARUNA
-  BPD
-}
-
-//Rill Fix
-
 model Emergency {
-  id           String  @id @default(uuid())
-  user_id      String
-  message      String  @db.Text
-  latitude     String  @db.VarChar(50)
-  longitude    String  @db.VarChar(50)
-  is_handled   Boolean @default(false)
-  phone_number String  @db.VarChar(20)
+  id           String   @id @default(uuid())
+  user_id      String 
+  phone_number String?  @db.VarChar(20)
+  created_at   DateTime @default(now())
+  message      String   @db.Text
+  latitude     String   @db.VarChar(50)
+  longitude    String   @db.VarChar(50)
+  is_handled   Boolean  @default(false)
+  updated_at   DateTime @updatedAt
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
+  @@index([user_id], map: "emergencies_user_id_fkey")
   @@map("emergencies")
 }
 
@@ -120,13 +36,6 @@ model SiteContent {
   @@map("site_contents")
 }
 
-enum SiteContentType {
-  TEXT
-  LINK
-  IMAGE
-  VIDEO
-}
-
 model Map {
   id          String   @id @default(uuid())
   type        MapType
@@ -135,11 +44,11 @@ model Map {
   year        Int
   coordinates Json
   icon        String?
-  radius      Int?
-  color       String?  @db.VarChar(9)
-  area        Decimal? @db.Decimal(15, 2)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
+  area        Decimal? @db.Decimal(15, 2)
+  color       String?  @db.VarChar(9)
+  radius      Int?
 
   @@map("maps")
 }
@@ -150,27 +59,27 @@ model ActivityLog {
   action     String              @db.VarChar(255)
   location   ActivityLogLocation
   created_at DateTime            @default(now())
+  user       User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
+  @@index([user_id], map: "activity_logs_user_id_fkey")
   @@map("activity_logs")
 }
 
 model User {
-  id               String   @id @default(uuid())
-  name             String   @db.VarChar(255)
-  phone_number     String?  @db.VarChar(20)
-  email            String?  @db.VarChar(255)
-  password         String   @db.VarChar(255)
-  role             Role
-  reset_token      String?  @db.VarChar(500)
-  emergency_change Int      @default(3)
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
-
-  comments    Comment[]
-  ActivityLog ActivityLog[]
-  Emergency   Emergency[]
+  id                      String        @id @default(uuid())
+  name                    String        @db.VarChar(255)
+  phone_number            String?       @db.VarChar(20)
+  email                   String?       @db.VarChar(255)
+  password                String        @db.VarChar(255)
+  role                    Role
+  reset_token             String?       @db.VarChar(500)
+  emergency_blocked_until DateTime?
+  created_at              DateTime      @default(now())
+  updated_at              DateTime      @updatedAt
+  emergency_change        Int           @default(3)
+  ActivityLog             ActivityLog[]
+  comments                Comment[]
+  Emergency               Emergency[]
 
   @@map("users")
 }
@@ -180,15 +89,13 @@ model Message {
   name         String   @db.VarChar(255)
   email        String?  @db.VarChar(255)
   phone_number String?  @db.VarChar(20)
-  message      String   @db.Text()
+  message      String   @db.Text
   is_read      Boolean  @default(false)
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
   @@map("messages")
 }
-
-//fix i think
 
 model Pengantar {
   id         String        @id @default(uuid())
@@ -325,20 +232,19 @@ model Product {
   link_whatsapp  String   @db.VarChar(255)
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
+  category       Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  ratings        Rating[]
 
-  category Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
-  ratings  Rating[]
-
+  @@index([category_id], map: "products_category_id_fkey")
   @@map("products")
 }
 
 model Category {
-  id         String   @id @default(uuid())
-  name       String   @db.VarChar(255)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  products Product[]
+  id         String    @id @default(uuid())
+  name       String    @db.VarChar(255)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  products   Product[]
 
   @@map("categories")
 }
@@ -350,9 +256,9 @@ model Rating {
   rating     Int
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  product    Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
 
-  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
-
+  @@index([product_id], map: "ratings_product_id_fkey")
   @@map("ratings")
 }
 
@@ -361,16 +267,14 @@ model Comment {
   user_id     String
   target_id   String
   target_type TargetType
-  content     String     @db.Text()
+  content     String     @db.Text
   created_at  DateTime   @default(now())
   updated_at  DateTime   @updatedAt
+  user        User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
+  @@index([user_id], map: "comments_user_id_fkey")
   @@map("comments")
 }
-
-// yang atas migrasi dari microservice
 
 model VillageWorkProgram {
   id            String                   @id @default(uuid())
@@ -400,7 +304,7 @@ model VillageAchievement {
 model Resident {
   id            String       @id @default(uuid())
   key           String       @unique @db.VarChar(255)
-  value         Int          @db.Int
+  value         Int
   resident_type ResidentType
   created_at    DateTime     @default(now())
   updated_at    DateTime     @updatedAt
@@ -431,4 +335,90 @@ model Regulation {
   updatedAt DateTime @updatedAt
 
   @@map("regulations")
+}
+
+enum ResidentType {
+  GENDER
+  PERNIKAHAN
+  AGAMA
+  USIA
+  KEPALA_KELUARGA
+  PERKERJAAN
+  PENDIDIKAN
+  WAJIB_PILIH
+  DUSUN
+  ANAK_ANAK
+}
+
+enum Role {
+  REGULAR
+  ADMIN
+  PKK
+  KARANG_TARUNA
+  BPD
+  CONTRIBUTOR
+}
+
+enum MapType {
+  POLYGON
+  MARKER
+}
+
+enum ActivityLogLocation {
+  NEWS
+  AGENDA
+  GALLERY
+  MESSAGE
+  BUMDES
+  VILLAGEWORKPROGRAM
+  USER
+}
+
+enum VillageWorkProgramStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TargetType {
+  NEWS
+  AGENDA
+  PRODUCT
+}
+
+enum AgendaType {
+  REGULAR
+  PKK
+  KARANG_TARUNA
+  BPD
+}
+
+enum StatusDesa {
+  MAJU
+  BERKEMBANG
+  MANDIRI
+  TERTINGGAL
+  SANGAT_TERTINGGAL
+}
+
+enum PengantarType {
+  KTP
+  KK
+  SKCK
+  LAINNYA
+}
+
+enum Organization {
+  PEMERINTAH
+  PKK
+  KARANG_TARUNA
+  BPD
+}
+
+enum SiteContentType {
+  TEXT
+  LINK
+  IMAGE
+  VIDEO
 }

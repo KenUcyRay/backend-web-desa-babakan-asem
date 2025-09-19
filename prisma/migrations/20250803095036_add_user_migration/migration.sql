@@ -7,6 +7,7 @@ CREATE TABLE `users` (
     `password` VARCHAR(255) NOT NULL,
     `role` ENUM('REGULAR', 'ADMIN', 'PKK', 'KARANG_TARUNA', 'BPD', 'CONTRIBUTOR') NOT NULL,
     `reset_token` VARCHAR(500) NULL,
+    `emergency_blocked_until` DATETIME(3) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
