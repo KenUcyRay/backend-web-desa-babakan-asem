@@ -344,7 +344,7 @@ model regulations {
   fileName  String
   fileSize  BigInt?
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @updatedAt
 }
 
 enum ResidentType {

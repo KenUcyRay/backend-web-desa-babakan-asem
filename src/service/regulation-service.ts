@@ -46,7 +46,7 @@ export class RegulationService {
     // 🔹 Pastikan file path absolute (supaya fs.existsSync aman)
     const storedPath = path.isAbsolute(file.path) ? file.path : path.join(process.cwd(), file.path);
 
-    const regulation = await prismaClient.regulation.create({
+    const regulation = await prismaClient.regulations.create({
       data: {
         title: createRequest.title,
         year: createRequest.year,
@@ -60,7 +60,7 @@ export class RegulationService {
   }
 
   static async getAll(): Promise<RegulationResponse[]> {
-    const regulations = await prismaClient.regulation.findMany({
+    const regulations = await prismaClient.regulations.findMany({
       orderBy: { createdAt: "desc" },
     });
 
@@ -68,7 +68,7 @@ export class RegulationService {
   }
 
   static async getById(id: number): Promise<RegulationResponse> {
-    const regulation = await prismaClient.regulation.findUnique({ where: { id } });
+    const regulation = await prismaClient.regulations.findUnique({ where: { id } });
     if (!regulation) {
       throw new ResponseError(404, "Regulation not found");
     }
@@ -89,7 +89,7 @@ export class RegulationService {
 
     const updateRequest = Validation.validate(RegulationValidation.UPDATE, normalizedReq);
 
-    const existingRegulation = await prismaClient.regulation.findUnique({ where: { id } });
+    const existingRegulation = await prismaClient.regulations.findUnique({ where: { id } });
     if (!existingRegulation) {
       throw new ResponseError(404, "Regulation not found");
     }
@@ -108,7 +108,7 @@ export class RegulationService {
       updateData.fileSize = file.size ? BigInt(file.size) : null;
     }
 
-    const regulation = await prismaClient.regulation.update({
+    const regulation = await prismaClient.regulations.update({
       where: { id },
       data: updateData,
     });
@@ -117,7 +117,7 @@ export class RegulationService {
   }
 
   static async delete(id: number): Promise<void> {
-    const regulation = await prismaClient.regulation.findUnique({ where: { id } });
+    const regulation = await prismaClient.regulations.findUnique({ where: { id } });
     if (!regulation) {
       throw new ResponseError(404, "Regulation not found");
     }
@@ -126,11 +126,11 @@ export class RegulationService {
       fs.unlinkSync(regulation.filePath);
     }
 
-    await prismaClient.regulation.delete({ where: { id } });
+    await prismaClient.regulations.delete({ where: { id } });
   }
 
   static async downloadFile(id: number): Promise<{ filePath: string; fileName: string }> {
-    const regulation = await prismaClient.regulation.findUnique({ where: { id } });
+    const regulation = await prismaClient.regulations.findUnique({ where: { id } });
     if (!regulation) {
       throw new ResponseError(404, "Regulation not found");
     }
