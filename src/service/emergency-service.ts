@@ -10,151 +10,218 @@ import { Validation } from "@/validation/validation";
 
 export class EmergencyService {
   static async getAll(query: QueryEmergencyRequest) {
-    query = Validation.validate(EmergencyValidation.query, query);
+    try {
+      const validatedQuery = Validation.validate(EmergencyValidation.query, query);
 
-    const emergencies = await prismaClient.emergency.findMany({
-      where: {
-        is_handled: query.is_handled,
-      },
-      orderBy: {
-        created_at: "desc",
-      },
-      skip: (query.page! - 1) * query.limit!,
-      take: query.limit,
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            phone_number: true,
-            email: true,
+      const emergencies = await prismaClient.emergencies.findMany({
+        where: {
+          is_handled: validatedQuery.is_handled,
+        },
+        orderBy: {
+          created_at: "desc",
+        },
+        skip: ((validatedQuery.page || 1) - 1) * (validatedQuery.limit || 10),
+        take: validatedQuery.limit || 10,
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              phone_number: true,
+              email: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    const totalPage = await prismaClient.emergency.count({
-      where: {
-        is_handled: query.is_handled,
-      },
-    });
+      const totalItems = await prismaClient.emergencies.count({
+        where: {
+          is_handled: validatedQuery.is_handled,
+        },
+      });
 
-    return {
-      page: query.page,
-      limit: query.limit,
-      total_page: Math.ceil(totalPage / query.limit!),
-      data: emergencies,
-    };
+      return {
+        page: validatedQuery.page || 1,
+        limit: validatedQuery.limit || 10,
+        total_page: Math.ceil(totalItems / (validatedQuery.limit || 10)),
+        total_items: totalItems,
+        data: emergencies,
+      };
+    } catch (error) {
+      console.error("Emergency getAll error:", error);
+      throw new ResponseError(500, "Gagal mengambil data emergency");
+    }
   }
 
   static async create(user: UserResponse, body: CreateEmergencyRequest) {
-    body = Validation.validate(EmergencyValidation.create, body);
+    try {
+      console.log("Creating emergency with data:", { user: user.id, body });
+      
+      // Validate request body
+      const validatedBody = Validation.validate(EmergencyValidation.create, body);
+      console.log("Validated body:", validatedBody);
 
-    // 1️⃣ cek apakah user sedang diblokir
-    const currentUser = await prismaClient.user.findUnique({
-      where: { id: user.id },
-    });
-
-    if (
-      currentUser?.emergency_blocked_until &&
-      currentUser.emergency_blocked_until > new Date()
-    ) {
-      throw new ResponseError(
-        403,
-        `Akun diblokir sampai ${currentUser.emergency_blocked_until.toLocaleString()}`
-      );
-    }
-
-    // 2️⃣ buat emergency baru
-    const emergency = await prismaClient.emergency.create({
-      data: {
-        user_id: user.id,
-        phone_number: body.phone_number || null, // ✅ boleh string/null/undefined
-        message: body.message,
-        latitude: body.latitude,
-        longitude: body.longitude,
-      },
-    });
-
-    // 3️⃣ kurangi jumlah kesempatan (emergency_change)
-    const newChange = user.emergency_change - 1;
-
-    if (newChange <= 0) {
-      // kalau sudah habis → blokir 1 menit
-      const blockUntil = new Date(Date.now() + 1 * 60 * 1000); // ⏰ 1 menit
-      await prismaClient.user.update({
+      // Get current user data with latest emergency_change value
+      const currentUser = await prismaClient.user.findUnique({
         where: { id: user.id },
-        data: {
-          emergency_change: 0,
-          emergency_blocked_until: blockUntil,
+        select: {
+          id: true,
+          name: true,
+          phone_number: true,
+          emergency_change: true,
+          emergency_blocked_until: true,
         },
       });
-    } else {
-      await prismaClient.user.update({
-        where: { id: user.id },
+
+      if (!currentUser) {
+        throw new ResponseError(404, "User tidak ditemukan");
+      }
+
+      console.log("Current user:", currentUser);
+
+      // Check if user is blocked
+      if (
+        currentUser.emergency_blocked_until &&
+        currentUser.emergency_blocked_until > new Date()
+      ) {
+        throw new ResponseError(
+          403,
+          `Akun diblokir sampai ${currentUser.emergency_blocked_until.toLocaleString()}`
+        );
+      }
+
+      // Create emergency
+      const emergency = await prismaClient.emergencies.create({
         data: {
-          emergency_change: newChange,
+          user_id: user.id,
+          phone_number: validatedBody.phone_number || currentUser.phone_number || null,
+          message: validatedBody.message,
+          latitude: validatedBody.latitude,
+          longitude: validatedBody.longitude,
+          is_handled: false,
         },
       });
-    }
 
-    return { data: emergency };
+      console.log("Emergency created:", emergency);
+
+      // Update user's emergency_change count
+      const newChange = Math.max(0, currentUser.emergency_change - 1);
+      console.log("Updating emergency_change:", { old: currentUser.emergency_change, new: newChange });
+      
+      if (newChange <= 0) {
+        const blockUntil = new Date(Date.now() + 60000); // 1 minute block
+        await prismaClient.user.update({
+          where: { id: user.id },
+          data: {
+            emergency_change: 0,
+            emergency_blocked_until: blockUntil,
+          },
+        });
+        console.log("User blocked until:", blockUntil);
+      } else {
+        await prismaClient.user.update({
+          where: { id: user.id },
+          data: {
+            emergency_change: newChange,
+          },
+        });
+        console.log("User emergency_change updated to:", newChange);
+      }
+
+      return { data: emergency };
+    } catch (error) {
+      console.error("Emergency creation error:", error);
+      if (error instanceof ResponseError) throw error;
+      
+      // Handle specific Prisma errors
+      if (error && typeof error === 'object' && 'code' in error) {
+        const prismaError = error as { code: string; message?: string };
+        if (prismaError.code === 'P2002') {
+          throw new ResponseError(400, "Duplicate entry detected");
+        }
+        if (prismaError.code === 'P2003') {
+          throw new ResponseError(400, "Foreign key constraint failed");
+        }
+      }
+      
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      throw new ResponseError(400, `Gagal membuat laporan emergency: ${errorMessage}`);
+    }
   }
 
   static async update(id: string) {
-    const emergency = await prismaClient.emergency.findUnique({
-      where: { id },
-    });
+    try {
+      const emergency = await prismaClient.emergencies.findUnique({
+        where: { id },
+      });
 
-    if (!emergency) {
-      throw new ResponseError(404, "Emergency tidak di temukan");
+      if (!emergency) {
+        throw new ResponseError(404, "Emergency tidak ditemukan");
+      }
+
+      const updatedEmergency = await prismaClient.emergencies.update({
+        where: { id },
+        data: {
+          is_handled: true,
+        },
+      });
+
+      // Reset user's emergency_change
+      await prismaClient.user.update({
+        where: { id: emergency.user_id },
+        data: {
+          emergency_change: 3,
+          emergency_blocked_until: null, // Remove block when emergency is handled
+        },
+      });
+
+      return { data: updatedEmergency };
+    } catch (error) {
+      console.error("Emergency update error:", error);
+      if (error instanceof ResponseError) throw error;
+      throw new ResponseError(400, "Gagal mengupdate status emergency");
     }
-
-    const updatedEmergency = await prismaClient.emergency.update({
-      where: { id },
-      data: {
-        is_handled: true,
-      },
-    });
-
-    await prismaClient.user.update({
-      where: { id: emergency.user_id },
-      data: {
-        emergency_change: 3,
-      },
-    });
-
-    return { data: updatedEmergency };
   }
 
   static async delete(id: string) {
-    const emergency = await prismaClient.emergency.findUnique({
-      where: { id },
-    });
+    try {
+      const emergency = await prismaClient.emergencies.findUnique({
+        where: { id },
+      });
 
-    if (!emergency) {
-      throw new ResponseError(404, "Emergency tidak di temukan");
+      if (!emergency) {
+        throw new ResponseError(404, "Emergency tidak ditemukan");
+      }
+
+      await prismaClient.emergencies.delete({
+        where: { id },
+      });
+    } catch (error) {
+      console.error("Emergency delete error:", error);
+      if (error instanceof ResponseError) throw error;
+      throw new ResponseError(400, "Gagal menghapus emergency");
     }
-
-    await prismaClient.emergency.delete({
-      where: { id },
-    });
   }
 
   static async count() {
-    const isNotHandled = await prismaClient.emergency.count({
-      where: { is_handled: false },
-    });
+    try {
+      const isNotHandled = await prismaClient.emergencies.count({
+        where: { is_handled: false },
+      });
 
-    const isHandled = await prismaClient.emergency.count({
-      where: { is_handled: true },
-    });
+      const isHandled = await prismaClient.emergencies.count({
+        where: { is_handled: true },
+      });
 
-    return {
-      data: {
-        is_not_handled: isNotHandled,
-        is_handled: isHandled,
-      },
-    };
+      return {
+        data: {
+          is_not_handled: isNotHandled,
+          is_handled: isHandled,
+        },
+      };
+    } catch (error) {
+      console.error("Emergency count error:", error);
+      throw new ResponseError(500, "Gagal menghitung data emergency");
+    }
   }
 }

@@ -3,6 +3,7 @@ import { EmergencyController } from "@/controller/emergency-controller";
 import { RatingController } from "@/controller/rating-controller";
 import { UserController } from "@/controller/user-controller";
 import { authMiddleware } from "@/middleware/auth-middleware";
+import { roleMiddleware } from "@/middleware/role-middleware";
 import express from "express";
 
 export const privateRouter = express.Router();

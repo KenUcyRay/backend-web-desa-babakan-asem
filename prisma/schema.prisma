@@ -8,22 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Emergency {
-  id           String   @id @default(uuid())
-  user_id      String 
-  phone_number String?  @db.VarChar(20)
-  created_at   DateTime @default(now())
-  message      String   @db.Text
-  latitude     String   @db.VarChar(50)
-  longitude    String   @db.VarChar(50)
-  is_handled   Boolean  @default(false)
-  updated_at   DateTime @updatedAt
-  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([user_id], map: "emergencies_user_id_fkey")
-  @@map("emergencies")
-}
-
 model SiteContent {
   id         String          @id @default(uuid())
   key        String          @unique @db.VarChar(255)
@@ -35,6 +19,19 @@ model SiteContent {
 
   @@map("site_contents")
 }
+
+model CallCenter {
+  id         String   @id @default(uuid())
+  name       String   @db.VarChar(255)
+  type       String   @db.VarChar(20)   
+  number     String   @db.VarChar(20)
+  is_active  Boolean  @default(true)    
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("callcenters")
+}
+
 
 model Map {
   id          String   @id @default(uuid())
@@ -79,7 +76,7 @@ model User {
   emergency_change        Int           @default(3)
   ActivityLog             ActivityLog[]
   comments                Comment[]
-  Emergency               Emergency[]
+  emergencies             emergencies[]
 
   @@map("users")
 }
@@ -324,7 +321,22 @@ model Apb {
   @@map("apb")
 }
 
-model Regulation {
+model emergencies {
+  id           String   @id @default(uuid())
+  user_id      String
+  phone_number String?  @db.VarChar(20)
+  created_at   DateTime @default(now())
+  message      String   @db.Text
+  latitude     String   @db.VarChar(50)
+  longitude    String   @db.VarChar(50)
+  is_handled   Boolean  @default(false)
+  updated_at   DateTime @updatedAt
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id], map: "emergencies_user_id_fkey")
+}
+
+model regulations {
   id        Int      @id @default(autoincrement())
   title     String
   year      Int
@@ -332,9 +344,7 @@ model Regulation {
   fileName  String
   fileSize  BigInt?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("regulations")
+  updatedAt DateTime
 }
 
 enum ResidentType {
@@ -421,4 +431,9 @@ enum SiteContentType {
   LINK
   IMAGE
   VIDEO
+}
+
+enum CallCenterType {
+  CALL_CENTER
+  WHATSAPP
 }

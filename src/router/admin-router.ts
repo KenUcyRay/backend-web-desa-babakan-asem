@@ -24,6 +24,7 @@ import { SiteContentController } from "@/controller/site-content-controller";
 import { EmergencyController } from "@/controller/emergency-controller";
 import { RegulationController } from "@/controller/regulation-controller";
 import { regulationUpload } from "@/application/regulation-multer";
+import { CallCenterController } from "@/controller/callcenter-controller";
 
 export const adminRouter = express.Router();
 
@@ -225,5 +226,10 @@ adminRouter.put(
 );
 adminRouter.delete("/regulations/:id", RegulationController.delete);
 
-// ✅ Tambahan route untuk preview regulasi
 adminRouter.get("/regulations/:id/preview", RegulationController.preview);
+
+adminRouter.get("/callcenters", CallCenterController.getAll);
+adminRouter.post("/callcenters", CallCenterController.create);
+adminRouter.put("/callcenters/:id", CallCenterController.update);
+adminRouter.delete("/callcenters/:id", CallCenterController.delete);
+adminRouter.patch("/callcenters/:id/toggle", CallCenterController.toggleActive);

@@ -16,6 +16,7 @@ import { ProductController } from "@/controller/product-controller";
 import { CommentController } from "@/controller/comment-controller";
 import { SiteContentController } from "@/controller/site-content-controller";
 import { RegulationController } from "@/controller/regulation-controller";
+import { CallCenterController } from "@/controller/callcenter-controller";
 
 export const publicRouter = express.Router();
 
@@ -83,3 +84,5 @@ publicRouter.get("/regulations", RegulationController.getAll);
 publicRouter.get("/regulations/:id/download", RegulationController.download);
 publicRouter.get("/regulations/:id/preview", RegulationController.preview);
 publicRouter.get("/regulations/:id", RegulationController.getById);
+
+publicRouter.get("/callcenters", CallCenterController.getAllPublic);
