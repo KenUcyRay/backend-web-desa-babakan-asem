@@ -24,8 +24,13 @@ export interface PendudukUpdateRequest {
   amount: number;
 }
 
+export interface SdgsCreateRequest {
+  name: string;
+  progress: number;
+}
+
 export interface SdgsUpdateRequest {
-  progres: number;
+  progress: number;
 }
 
 export interface ExtraIdmUpdateRequest {

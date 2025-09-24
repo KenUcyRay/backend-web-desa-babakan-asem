@@ -53,9 +53,16 @@ export const errorMiddleware = (
       errors: frontendFormat,
     });
   } else if (error instanceof ResponseError) {
-    res.status(error.status).json({
-      errors: error.message,
-    });
+    const response: any = {
+      success: false,
+      message: error.message,
+    };
+    
+    if (error.error) {
+      response.error = error.error;
+    }
+    
+    res.status(error.status).json(response);
   } else if (error instanceof AxiosError) {
     res.status(error.response?.status || 500).json({
       errors:

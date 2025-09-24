@@ -1,5 +1,5 @@
 import { prismaClient } from "@/application/database";
-import { QueryResidentRequest } from "@/model/resident-model";
+import { CreateResidentRequest, QueryResidentRequest } from "@/model/resident-model";
 import { ResidentValidation } from "@/validation/resident-validation";
 import { Validation } from "@/validation/validation";
 import { date } from "zod";
@@ -7,6 +7,36 @@ import { ResponseError } from "@/error/response-error";
 import { TFunction } from "i18next";
 
 export class ResidentService {
+  static async create(t: TFunction, request: CreateResidentRequest) {
+    const validation = Validation.validate(ResidentValidation.create, request);
+
+    // Check if resident with same type and key already exists
+    const existingResident = await prismaClient.resident.findFirst({
+      where: {
+        resident_type: validation.type as any,
+        key: validation.key,
+      },
+    });
+    
+    if (existingResident) {
+      throw new ResponseError(400, "Data sudah ada", "DUPLICATE_ENTRY");
+    }
+
+    const resident = await prismaClient.resident.create({
+      data: {
+        resident_type: validation.type as any,
+        key: validation.key,
+        value: validation.value,
+      },
+    });
+
+    return {
+      success: true,
+      message: "Data penduduk berhasil dibuat",
+      data: resident,
+    };
+  }
+
   static async getAll(query: QueryResidentRequest) {
     const validation = Validation.validate(ResidentValidation.query, query);
 

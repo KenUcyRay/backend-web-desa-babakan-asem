@@ -136,6 +136,19 @@ export class InfografisController {
     }
   }
 
+  static async createSdgs(
+    req: UserRequest & I18nRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const response = await InfografisService.createSdgs(req.t, req.body);
+      res.status(201).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async updateSdgs(
     req: UserRequest & I18nRequest,
     res: Response,
@@ -145,7 +158,7 @@ export class InfografisController {
       const response = await InfografisService.updateSdgs(
         req.t,
         req.body,
-        req.params.sdgId
+        req.params.id
       );
       res.status(200).json(response);
     } catch (error) {

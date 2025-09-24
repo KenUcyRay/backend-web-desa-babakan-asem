@@ -6,6 +6,7 @@ import {
   ExtraIdmUpdateRequest,
   IdmCreateRequest,
   IdmUpdateRequest,
+  SdgsCreateRequest,
   SdgsUpdateRequest,
 } from "../model/infografis-model";
 import { InfografisValidation } from "@/validation/infografis-validation";
@@ -160,11 +161,36 @@ export class InfografisService {
     });
   }
 
+  static async createSdgs(t: TFunction, request: SdgsCreateRequest) {
+    Validation.validate(InfografisValidation.createSdgs, request);
+
+    // Check if SDG with same name already exists
+    const existingSdg = await prismaClient.sdgs.findFirst({
+      where: { name: request.name },
+    });
+    
+    if (existingSdg) {
+      throw new ResponseError(400, "Data sudah ada", "DUPLICATE_ENTRY");
+    }
+
+    const sdg = await prismaClient.sdgs.create({
+      data: request,
+    });
+
+    return {
+      success: true,
+      message: "SDG berhasil dibuat",
+      data: sdg,
+    };
+  }
+
   static async updateSdgs(
     t: TFunction,
     request: SdgsUpdateRequest,
     sdgId: string
   ) {
+    Validation.validate(InfografisValidation.updateSdgs, request);
+    
     const sdgExists = await prismaClient.sdgs.findUnique({
       where: { id: sdgId },
     });
@@ -177,6 +203,10 @@ export class InfografisService {
       data: request,
     });
 
-    return { sdgs: updatedSdgs };
+    return {
+      success: true,
+      message: "SDG berhasil diperbarui",
+      data: updatedSdgs,
+    };
   }
 }

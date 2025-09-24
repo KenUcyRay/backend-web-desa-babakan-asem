@@ -25,6 +25,7 @@ import { EmergencyController } from "@/controller/emergency-controller";
 import { RegulationController } from "@/controller/regulation-controller";
 import { regulationUpload } from "@/application/regulation-multer";
 import { CallCenterController } from "@/controller/callcenter-controller";
+import { ExtraIdmController } from "@/controller/extra-idm-controller";
 
 export const adminRouter = express.Router();
 
@@ -165,7 +166,11 @@ adminRouter.patch("/apb/:id", ApbController.update);
 adminRouter.delete("/apb/:id", ApbController.delete);
 
 // Infografis
+adminRouter.post("/residents", ResidentController.create);
 adminRouter.patch("/residents/:id", ResidentController.update);
+adminRouter.post("/sdgs", InfografisController.createSdgs);
+adminRouter.get("/infografis/sdg", InfografisController.getSdgs);
+adminRouter.patch("/infografis/sdg/:id", InfografisController.updateSdgs);
 adminRouter.post("/infografis/idm/", InfografisController.createIdm);
 adminRouter.patch("/infografis/idm/:idmId", InfografisController.updateIdm);
 adminRouter.delete("/infografis/idm/:idmId", InfografisController.deleteIdm);
@@ -178,12 +183,13 @@ adminRouter.delete(
   "/infografis/bansos/:bansosId",
   InfografisController.deleteBansos
 );
-adminRouter.patch("/infografis/sdg/:sdgId", InfografisController.updateSdgs);
 
 adminRouter.patch(
   "/infografis/extra-idm/:id",
   InfografisController.updateExtraIdm
 );
+adminRouter.get("/infografis/extra-idm/status", ExtraIdmController.getStatus);
+adminRouter.post("/infografis/extra-idm", ExtraIdmController.create);
 
 // Products
 adminRouter.get("/products/categories", CategoryController.getCategories);

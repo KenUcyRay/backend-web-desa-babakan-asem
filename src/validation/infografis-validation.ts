@@ -39,10 +39,43 @@ export class InfografisValidation {
       .optional(),
   });
 
-  static updateSdgs: ZodType = z.object({
-    progres: z
+  static createSdgs: ZodType = z.object({
+    name: z
       .string({ message: "zodErrors.required" })
-      .min(1, { message: "zodErrors.required" }),
+      .min(1, { message: "zodErrors.required" })
+      .refine((name) => {
+        const validNames = [
+          "Tanpa Kemiskinan",
+          "Tanpa Kelaparan", 
+          "Kesehatan & Kesejahteraan",
+          "Pendidikan Berkualitas",
+          "Kesetaraan Gender",
+          "Air Bersih & Sanitasi",
+          "Energi Bersih & Terjangkau",
+          "Pekerjaan Layak & Ekonomi",
+          "Infrastruktur & Inovasi",
+          "Mengurangi Ketimpangan",
+          "Kota & Komunitas Berkelanjutan",
+          "Konsumsi Bertanggung Jawab",
+          "Aksi Iklim",
+          "Ekosistem Lautan",
+          "Ekosistem Daratan",
+          "Perdamaian & Keadilan",
+          "Kemitraan untuk Tujuan"
+        ];
+        return validNames.includes(name);
+      }, { message: "zodErrors.invalid_value" }),
+    progress: z
+      .number({ message: "zodErrors.required" })
+      .min(0, { message: "zodErrors.min_value" })
+      .max(100, { message: "zodErrors.max_value" }),
+  });
+
+  static updateSdgs: ZodType = z.object({
+    progress: z
+      .number({ message: "zodErrors.required" })
+      .min(0, { message: "zodErrors.min_value" })
+      .max(100, { message: "zodErrors.max_value" }),
   });
 
   static updateExtraIdm: ZodType = z.object({

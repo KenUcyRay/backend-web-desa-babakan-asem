@@ -25,6 +25,8 @@ model CallCenter {
   name       String   @db.VarChar(255)
   type       String   @db.VarChar(20)   
   number     String   @db.VarChar(20)
+  icon       String?  @db.VarChar(50)
+  color      String?  @db.VarChar(50)
   is_active  Boolean  @default(true)    
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -191,7 +193,7 @@ model SocialAssistance {
 
 model Sdgs {
   id         String   @id @default(uuid())
-  name       String
+  name       String   @unique
   progress   Int
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -300,12 +302,13 @@ model VillageAchievement {
 
 model Resident {
   id            String       @id @default(uuid())
-  key           String       @unique @db.VarChar(255)
+  key           String       @db.VarChar(255)
   value         Int
   resident_type ResidentType
   created_at    DateTime     @default(now())
   updated_at    DateTime     @updatedAt
 
+  @@unique([resident_type, key])
   @@map("resident_statistics")
 }
 

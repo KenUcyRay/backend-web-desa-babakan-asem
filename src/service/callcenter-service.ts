@@ -89,6 +89,8 @@ export class CallCenterService {
         data: {
           ...validatedData,
           number: validatedData.number,
+          icon: validatedData.icon,
+          color: validatedData.color,
           is_active: validatedData.is_active ?? true,
         },
       });

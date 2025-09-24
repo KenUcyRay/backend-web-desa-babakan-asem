@@ -24,6 +24,8 @@ export class CallCenterValidation {
         errorMap: () => ({ message: "Type harus CALL_CENTER atau WHATSAPP" }),
       }),
       number: z.string(),
+      icon: z.string().max(50).optional(),
+      color: z.string().max(50).optional(),
       is_active: z.boolean().default(true),
     })
     .superRefine((data: any, ctx) => {
@@ -53,6 +55,8 @@ export class CallCenterValidation {
       name: z.string().min(1, "Nama tidak boleh kosong").optional(),
       type: z.enum(["CALL_CENTER", "WHATSAPP"]).optional(),
       number: z.string().optional(),
+      icon: z.string().max(50).optional(),
+      color: z.string().max(50).optional(),
       is_active: z.boolean().optional(),
     })
     .superRefine((data: any, ctx) => {
