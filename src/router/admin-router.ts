@@ -1,7 +1,8 @@
 import { Role } from "@prisma/client";
 import { VillageWorkProgramController } from "@/controller/village-work-program-controller";
 import { roleMiddleware } from "@/middleware/role-middleware";
-import express from "express";
+import express, { Response } from "express";
+import { UserRequest } from "@/type/user-request";
 import { VillageAchievementController } from "@/controller/village-achievement-controller";
 import { upload } from "@/application/multer";
 import { ResidentController } from "@/controller/resident-controller";
@@ -28,6 +29,39 @@ import { CallCenterController } from "@/controller/callcenter-controller";
 import { ExtraIdmController } from "@/controller/extra-idm-controller";
 
 export const adminRouter = express.Router();
+
+// Debug endpoints
+adminRouter.get("/debug/token", authMiddleware, (req: any, res: any) => {
+  res.json({
+    success: true,
+    message: "Token valid",
+    user: req.user,
+    canCreateMap: req.user?.role === 'ADMIN',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Test CORS endpoint
+adminRouter.options("/debug/cors", (req: any, res: any) => {
+  res.json({ message: "CORS preflight successful" });
+});
+
+adminRouter.put("/debug/cors", authMiddleware, (req: any, res: any) => {
+  res.json({
+    success: true,
+    message: "PUT method works with CORS",
+    headers: req.headers
+  });
+});
+
+adminRouter.get("/debug/user-role", authMiddleware, (req: any, res: any) => {
+  res.json({
+    success: true,
+    role: req.user?.role,
+    isAdmin: req.user?.role === 'ADMIN',
+    message: req.user?.role === 'ADMIN' ? 'Can create maps' : 'Cannot create maps - need ADMIN role'
+  });
+});
 
 adminRouter.use(authMiddleware);
 
@@ -94,6 +128,20 @@ adminRouter.delete(
 
 adminRouter.use(roleMiddleware(Role.ADMIN));
 
+// Map - Admin only  
+adminRouter.post("/maps", upload.single("icon"), MapController.create);
+adminRouter.patch("/maps/:id", upload.single("icon"), MapController.update);
+adminRouter.delete("/maps/:id", MapController.delete);
+
+// Debug map access
+adminRouter.get("/debug/map-access", (req: any, res: any) => {
+  res.json({
+    success: true,
+    message: "You have admin access to maps",
+    user: req.user
+  });
+});
+
 // Emergency
 adminRouter.get("/emergencies", EmergencyController.getAll);
 adminRouter.patch("/emergencies/:id", EmergencyController.update);
@@ -109,10 +157,7 @@ adminRouter.put(
 );
 adminRouter.delete("/galeri/:galeriId", GaleriController.delete);
 
-// Map
-adminRouter.post("/maps", upload.single("icon"), MapController.create);
-adminRouter.patch("/maps/:id", upload.single("icon"), MapController.update);
-adminRouter.delete("/maps/:id", MapController.delete);
+
 
 // Activity Log
 adminRouter.get("/activity-log", ActivityLogController.getAll);

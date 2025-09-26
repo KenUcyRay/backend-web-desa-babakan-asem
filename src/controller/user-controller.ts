@@ -10,7 +10,17 @@ export class UserController {
     try {
       const response = await UserService.register(req.t, req.body);
       setCookie(res, response.token, req.body.remember_me);
-      res.status(201).json({ data: response.user });
+      res.status(201).json({
+        success: true,
+        data: {
+          id: response.user.id,
+          name: response.user.name,
+          email: response.user.email,
+          role: response.user.role,
+          phone_number: response.user.phone_number
+        },
+        token: response.token
+      });
     } catch (error) {
       next(error);
     }
@@ -19,7 +29,17 @@ export class UserController {
     try {
       const response = await UserService.login(req.t, req.body);
       setCookie(res, response.token, req.body.remember_me);
-      res.status(200).json({ data: response.user });
+      res.status(200).json({
+        success: true,
+        data: {
+          id: response.user.id,
+          name: response.user.name,
+          email: response.user.email,
+          role: response.user.role,
+          phone_number: response.user.phone_number
+        },
+        token: response.token
+      });
     } catch (error) {
       next(error);
     }

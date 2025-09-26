@@ -7,6 +7,7 @@ import {
 import { UserResponse } from "@/model/user-model";
 import { EmergencyValidation } from "@/validation/emergency-validation";
 import { Validation } from "@/validation/validation";
+import { getIO } from "@/application/socket";
 
 export class EmergencyService {
   static async getAll(query: QueryEmergencyRequest) {
@@ -100,9 +101,28 @@ export class EmergencyService {
           longitude: validatedBody.longitude,
           is_handled: false,
         },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              phone_number: true,
+              email: true,
+            },
+          },
+        },
       });
 
       console.log("Emergency created:", emergency);
+
+      // Emit real-time event for new emergency
+      try {
+        const io = getIO();
+        io.emit('new_emergency', emergency);
+        console.log('Socket event emitted: new_emergency');
+      } catch (socketError) {
+        console.warn('Failed to emit socket event:', socketError);
+      }
 
       // Update user's emergency_change count
       const newChange = Math.max(0, currentUser.emergency_change - 1);
@@ -164,6 +184,16 @@ export class EmergencyService {
         data: {
           is_handled: true,
         },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              phone_number: true,
+              email: true,
+            },
+          },
+        },
       });
 
       // Reset user's emergency_change
@@ -174,6 +204,15 @@ export class EmergencyService {
           emergency_blocked_until: null, // Remove block when emergency is handled
         },
       });
+
+      // Emit real-time event for emergency update
+      try {
+        const io = getIO();
+        io.emit('emergency_updated', updatedEmergency);
+        console.log('Socket event emitted: emergency_updated');
+      } catch (socketError) {
+        console.warn('Failed to emit socket event:', socketError);
+      }
 
       return { data: updatedEmergency };
     } catch (error) {
@@ -196,6 +235,15 @@ export class EmergencyService {
       await prismaClient.emergencies.delete({
         where: { id },
       });
+
+      // Emit real-time event for emergency deletion
+      try {
+        const io = getIO();
+        io.emit('emergency_deleted', { id });
+        console.log('Socket event emitted: emergency_deleted');
+      } catch (socketError) {
+        console.warn('Failed to emit socket event:', socketError);
+      }
     } catch (error) {
       console.error("Emergency delete error:", error);
       if (error instanceof ResponseError) throw error;

@@ -30,7 +30,7 @@ model CallCenter {
   is_active  Boolean  @default(true)    
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-
+  
   @@map("callcenters")
 }
 

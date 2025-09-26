@@ -25,7 +25,11 @@ export class MapService {
       data: bodyValidation,
     });
 
-    return { data: map };
+    return { 
+      success: true,
+      message: "Map created successfully",
+      data: map 
+    };
   }
   static async getAll() {
     const maps = await prismaClient.map.findMany({
