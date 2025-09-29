@@ -14,7 +14,7 @@ export const web = express();
 
 web.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5173", "https://desababakanasem.web.id"],
+    origin: ["http://localhost:3000", "http://192.168.1.13:3000", "https://desababakanasem.web.id"],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept-Language']
