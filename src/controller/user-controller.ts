@@ -17,9 +17,9 @@ export class UserController {
           name: response.user.name,
           email: response.user.email,
           role: response.user.role,
-          phone_number: response.user.phone_number
+          phone_number: response.user.phone_number,
         },
-        token: response.token
+        token: response.token,
       });
     } catch (error) {
       next(error);
@@ -36,9 +36,9 @@ export class UserController {
           name: response.user.name,
           email: response.user.email,
           role: response.user.role,
-          phone_number: response.user.phone_number
+          phone_number: response.user.phone_number,
         },
-        token: response.token
+        token: response.token,
       });
     } catch (error) {
       next(error);

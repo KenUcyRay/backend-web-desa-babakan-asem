@@ -12,6 +12,15 @@ import { MapController } from "@/controller/map-controller";
 
 export const web = express();
 
+web.use(
+  cors({
+    origin: ["https://desababakanasem.web.id"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept-Language"],
+  })
+);
+
 web.use(cookieParser());
 web.use(express.json());
 
