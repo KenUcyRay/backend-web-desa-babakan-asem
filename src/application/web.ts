@@ -12,7 +12,6 @@ import { MapController } from "@/controller/map-controller";
 
 export const web = express();
 
-  
 web.use(cookieParser());
 web.use(express.json());
 
@@ -45,7 +44,7 @@ if (process.env.NODE_ENV === "development") {
 
 // 404 handler
 web.use((req, res) => {
-  res.status(404).json({ errors: "Not Found" });
+  res.status(404).json({ errors: "Endpoint Not Found" });
 });
 
 // Error handler
