@@ -1,4 +1,63 @@
 -- CreateTable
+CREATE TABLE `site_contents` (
+    `id` VARCHAR(191) NOT NULL,
+    `key` VARCHAR(255) NOT NULL,
+    `value_id` TEXT NOT NULL,
+    `value_en` TEXT NOT NULL,
+    `type` ENUM('TEXT', 'LINK', 'IMAGE', 'VIDEO') NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `site_contents_key_key`(`key`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `callcenters` (
+    `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(255) NOT NULL,
+    `type` VARCHAR(20) NOT NULL,
+    `number` VARCHAR(20) NOT NULL,
+    `icon` VARCHAR(50) NULL,
+    `color` VARCHAR(50) NULL,
+    `is_active` BOOLEAN NOT NULL DEFAULT true,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `maps` (
+    `id` VARCHAR(191) NOT NULL,
+    `type` ENUM('POLYGON', 'MARKER') NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `description` VARCHAR(191) NOT NULL,
+    `year` INTEGER NOT NULL,
+    `coordinates` JSON NOT NULL,
+    `icon` VARCHAR(191) NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+    `area` DECIMAL(15, 2) NULL,
+    `color` VARCHAR(9) NULL,
+    `radius` INTEGER NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `activity_logs` (
+    `id` VARCHAR(191) NOT NULL,
+    `user_id` VARCHAR(191) NOT NULL,
+    `action` VARCHAR(255) NOT NULL,
+    `location` ENUM('NEWS', 'AGENDA', 'GALLERY', 'MESSAGE', 'BUMDES', 'VILLAGEWORKPROGRAM', 'USER') NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `activity_logs_user_id_fkey`(`user_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `users` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(255) NOT NULL,
@@ -10,6 +69,7 @@ CREATE TABLE `users` (
     `emergency_blocked_until` DATETIME(3) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
+    `emergency_change` INTEGER NOT NULL DEFAULT 3,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -91,7 +151,7 @@ CREATE TABLE `members` (
     `term_end` INTEGER NOT NULL,
     `is_term` BOOLEAN NOT NULL DEFAULT false,
     `important_level` INTEGER NOT NULL DEFAULT 1,
-    `organization_type` ENUM('PEMERINTAH', 'PKK', 'KARANG_TARUNA', 'DPD', 'BPD') NOT NULL,
+    `organization_type` ENUM('PEMERINTAH', 'PKK', 'KARANG_TARUNA', 'BPD') NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -139,6 +199,7 @@ CREATE TABLE `sdgs` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `sdgs_name_key`(`name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -155,7 +216,7 @@ CREATE TABLE `agenda` (
     `view_count` INTEGER NOT NULL DEFAULT 0,
     `is_published` BOOLEAN NOT NULL DEFAULT false,
     `published_at` DATETIME(3) NULL,
-    `type` ENUM('REGULAR', 'PKK', 'KARANG_TARUNA', 'DPD', 'BPD') NOT NULL DEFAULT 'REGULAR',
+    `type` ENUM('REGULAR', 'PKK', 'KARANG_TARUNA', 'BPD') NOT NULL DEFAULT 'REGULAR',
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -175,6 +236,7 @@ CREATE TABLE `products` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
+    INDEX `products_category_id_fkey`(`category_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -197,6 +259,7 @@ CREATE TABLE `ratings` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
+    INDEX `ratings_product_id_fkey`(`product_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -210,6 +273,7 @@ CREATE TABLE `comments` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
+    INDEX `comments_user_id_fkey`(`user_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -249,7 +313,7 @@ CREATE TABLE `resident_statistics` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `resident_statistics_key_key`(`key`),
+    UNIQUE INDEX `resident_statistics_resident_type_key_key`(`resident_type`, `key`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -267,105 +331,59 @@ CREATE TABLE `apb` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `galleries` (
+CREATE TABLE `emergencies` (
     `id` VARCHAR(191) NOT NULL,
-    `image` VARCHAR(255) NOT NULL,
-    `title` VARCHAR(255) NOT NULL,
-    `type` ENUM('REGULAR', 'PKK', 'KARANG_TARUNA', 'DPD', 'BPD') NOT NULL,
+    `user_id` VARCHAR(191) NOT NULL,
+    `phone_number` VARCHAR(20) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `program_pkks` (
-    `id` VARCHAR(191) NOT NULL,
-    `title` VARCHAR(255) NOT NULL,
-    `description` TEXT NOT NULL,
-    `featured_image` VARCHAR(255) NOT NULL,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `message` TEXT NOT NULL,
+    `latitude` VARCHAR(50) NOT NULL,
+    `longitude` VARCHAR(50) NOT NULL,
+    `is_handled` BOOLEAN NOT NULL DEFAULT false,
     `updated_at` DATETIME(3) NOT NULL,
 
+    INDEX `emergencies_user_id_fkey`(`user_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `online_requests` (
-    `id` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `email` VARCHAR(191) NOT NULL,
-    `phone_number` VARCHAR(191) NOT NULL,
-    `type` ENUM('LETTER_TRACKING', 'SERVICE_STATUS_CHECK', 'SERVICE_REQUEST') NOT NULL,
-    `is_accept` BOOLEAN NOT NULL DEFAULT false,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updated_at` DATETIME(3) NOT NULL,
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `public_services` (
-    `id` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `email` VARCHAR(191) NOT NULL,
-    `message` VARCHAR(191) NOT NULL,
-    `type` ENUM('COMPLAINT', 'REQUEST', 'OTHER') NOT NULL,
-    `is_accept` BOOLEAN NOT NULL DEFAULT false,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updated_at` DATETIME(3) NOT NULL,
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `idm_indexes` (
-    `id` VARCHAR(191) NOT NULL,
+CREATE TABLE `regulations` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(191) NOT NULL,
     `year` INTEGER NOT NULL,
-    `score` DOUBLE NOT NULL,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updated_at` DATETIME(3) NOT NULL,
+    `filePath` VARCHAR(191) NOT NULL,
+    `fileName` VARCHAR(191) NOT NULL,
+    `fileSize` BIGINT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `idm_details` (
+CREATE TABLE `contacts` (
     `id` VARCHAR(191) NOT NULL,
-    `village_status` ENUM('ADVANCED', 'DEVELOPING', 'INDEPENDENT', 'UNDERDEVELOPED', 'VERY_UNDERDEVELOPED') NOT NULL,
-    `social` DOUBLE NOT NULL,
-    `economy` DOUBLE NOT NULL,
-    `environment` DOUBLE NOT NULL,
+    `type` ENUM('LOKASI', 'TELEPON', 'WHATSAPP', 'EMAIL') NOT NULL,
+    `label` VARCHAR(255) NOT NULL,
+    `value` TEXT NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `contacts_type_key`(`type`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `social_aids` (
-    `id` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `amount` INTEGER NOT NULL,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updated_at` DATETIME(3) NOT NULL,
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `sdgs_goals` (
-    `id` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `progress` INTEGER NOT NULL,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updated_at` DATETIME(3) NOT NULL,
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- AddForeignKey
+ALTER TABLE `activity_logs` ADD CONSTRAINT `activity_logs_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `products` ADD CONSTRAINT `products_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `ratings` ADD CONSTRAINT `ratings_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `comments` ADD CONSTRAINT `comments_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `emergencies` ADD CONSTRAINT `emergencies_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

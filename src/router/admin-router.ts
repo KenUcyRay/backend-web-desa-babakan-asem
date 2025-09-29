@@ -27,6 +27,7 @@ import { RegulationController } from "@/controller/regulation-controller";
 import { regulationUpload } from "@/application/regulation-multer";
 import { CallCenterController } from "@/controller/callcenter-controller";
 import { ExtraIdmController } from "@/controller/extra-idm-controller";
+import { ContactController } from "@/controller/contact-controller";
 
 export const adminRouter = express.Router();
 
@@ -284,3 +285,9 @@ adminRouter.post("/callcenters", CallCenterController.create);
 adminRouter.put("/callcenters/:id", CallCenterController.update);
 adminRouter.delete("/callcenters/:id", CallCenterController.delete);
 adminRouter.patch("/callcenters/:id/toggle", CallCenterController.toggleActive);
+
+// Contacts
+adminRouter.get("/contacts", ContactController.getAll);
+adminRouter.post("/contacts", ContactController.create);
+adminRouter.put("/contacts/:id", ContactController.update);
+adminRouter.delete("/contacts/:id", ContactController.delete);

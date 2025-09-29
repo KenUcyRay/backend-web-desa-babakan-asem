@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `activity_logs` MODIFY `location` ENUM('NEWS', 'AGENDA', 'GALLERY', 'MESSAGE', 'BUMDES', 'VILLAGEWORKPROGRAM', 'USER') NOT NULL;

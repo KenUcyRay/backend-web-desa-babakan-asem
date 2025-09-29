@@ -350,6 +350,25 @@ model regulations {
   updatedAt DateTime @updatedAt
 }
 
+model Contact {
+  id         String      @id @default(uuid())
+  type       ContactType
+  label      String      @db.VarChar(255)  // Nama/label, contoh: "Alamat Kantor Desa"
+  value      String      @db.Text          // Isi data: alamat, nomor telp, email, dll
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+
+  @@unique([type])
+  @@map("contacts")
+}
+
+enum ContactType {
+  LOKASI
+  TELEPON
+  WHATSAPP
+  EMAIL
+}
+
 enum ResidentType {
   GENDER
   PERNIKAHAN

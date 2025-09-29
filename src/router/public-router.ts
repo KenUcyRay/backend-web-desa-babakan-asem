@@ -17,6 +17,7 @@ import { CommentController } from "@/controller/comment-controller";
 import { SiteContentController } from "@/controller/site-content-controller";
 import { RegulationController } from "@/controller/regulation-controller";
 import { CallCenterController } from "@/controller/callcenter-controller";
+import { ContactController } from "@/controller/contact-controller";
 
 export const publicRouter = express.Router();
 
@@ -86,3 +87,5 @@ publicRouter.get("/regulations/:id/preview", RegulationController.preview);
 publicRouter.get("/regulations/:id", RegulationController.getById);
 
 publicRouter.get("/callcenters", CallCenterController.getAllPublic);
+// Contacts
+publicRouter.get("/contacts", ContactController.getAllPublic);
