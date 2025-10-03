@@ -2,8 +2,8 @@ import { Role, User } from "@prisma/client";
 
 export interface RegisterUserRequest {
   name: string;
-  email?: string;
-  phone_number?: string;
+  email: string;
+  phone_number: string;
   password: string;
   confirm_password: string;
   remember_me: boolean;
@@ -25,8 +25,8 @@ export interface UpdateUserRequest {
 }
 export interface CreateUserRequest {
   name: string;
-  phone_number?: string;
-  email?: string;
+  phone_number: string;
+  email: string;
   password: string;
   confirm_password: string;
   role: Role;

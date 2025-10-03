@@ -34,23 +34,32 @@ export class UserService {
       throw new ResponseError(403, t("recaptcha.verification_failed"));
     }
 
-    const findUserWithSameEmaiOrPhone = await prismaClient.user.count({
+    const findUserWithSameEmail = await prismaClient.user.count({
       where: {
-        email: request.email ?? undefined,
-        phone_number: request.phone_number ?? undefined,
+        email: request.email,
       },
     });
 
-    if (findUserWithSameEmaiOrPhone !== 0) {
-      throw new ResponseError(400, t("user.already_registered"));
+    const findUserWithSamePhone = await prismaClient.user.count({
+      where: {
+        phone_number: request.phone_number,
+      },
+    });
+
+    if (findUserWithSameEmail !== 0) {
+      throw new ResponseError(400, t("user.email_already_registered"));
+    }
+
+    if (findUserWithSamePhone !== 0) {
+      throw new ResponseError(400, t("user.phone_already_registered"));
     }
 
     request.password = await bcryptjs.hash(request.password, 10);
     const user = await prismaClient.user.create({
       data: {
         name: request.name,
-        email: request.email ?? null,
-        phone_number: request.phone_number ?? null,
+        email: request.email,
+        phone_number: request.phone_number,
         password: request.password,
         role: "REGULAR",
       },
@@ -306,15 +315,24 @@ export class UserService {
   ) {
     Validation.validate(UserValidation.createUser, request);
 
-    const findUserWithSameEmaiOrPhone = await prismaClient.user.count({
+    const findUserWithSameEmail = await prismaClient.user.count({
       where: {
-        email: request.email ?? undefined,
-        phone_number: request.phone_number ?? undefined,
+        email: request.email,
       },
     });
 
-    if (findUserWithSameEmaiOrPhone !== 0) {
-      throw new ResponseError(400, t("user.already_registered"));
+    const findUserWithSamePhone = await prismaClient.user.count({
+      where: {
+        phone_number: request.phone_number,
+      },
+    });
+
+    if (findUserWithSameEmail !== 0) {
+      throw new ResponseError(400, t("user.email_already_registered"));
+    }
+
+    if (findUserWithSamePhone !== 0) {
+      throw new ResponseError(400, t("user.phone_already_registered"));
     }
 
     request.password = await bcryptjs.hash(request.password, 10);
@@ -323,6 +341,7 @@ export class UserService {
       data: {
         name: request.name,
         email: request.email,
+        phone_number: request.phone_number,
         password: request.password,
         role: request.role,
       },

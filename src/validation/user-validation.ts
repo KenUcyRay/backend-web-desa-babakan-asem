@@ -8,17 +8,15 @@ export class UserValidation {
         .string({ message: "zodErrors.required" })
         .max(255, { message: "zodErrors.max_length" }),
       phone_number: z
-        .string({ message: "zodErrors.invalid_type" })
+        .string({ message: "zodErrors.required" })
         .max(20, { message: "zodErrors.max_length" })
         .regex(/^(\+62|62|0)8[1-9][0-9]{6,9}$/, {
           message: "zodErrors.invalid_format",
-        })
-        .optional(),
+        }),
       email: z
-        .string({ message: "zodErrors.invalid_type" })
+        .string({ message: "zodErrors.required" })
         .email({ message: "zodErrors.email" })
-        .max(255, { message: "zodErrors.max_length" })
-        .optional(),
+        .max(255, { message: "zodErrors.max_length" }),
       password: z
         .string({ message: "zodErrors.required" })
         .min(6, { message: "zodErrors.min_length" })
@@ -30,17 +28,6 @@ export class UserValidation {
       remember_me: z.boolean({ message: "zodErrors.required" }),
       recaptcha_token: z.string({ message: "zodErrors.required" }),
     })
-    .refine(
-      (data) => {
-        const emailFilled = !!data.email;
-        const phoneFilled = !!data.phone_number;
-        return emailFilled !== phoneFilled;
-      },
-      {
-        message: "validation.email_or_phone_required",
-        path: ["email", "phone_number"],
-      }
-    )
     .refine((data) => data.password === data.confirm_password, {
       message: "validation.password_mismatch",
       path: ["confirm_password"],
@@ -110,14 +97,13 @@ export class UserValidation {
   static createUser: ZodType = z
     .object({
       name: z.string().max(255),
-      email: z.string().email().max(255).optional(),
+      email: z.string().email().max(255),
       phone_number: z
         .string()
         .max(20)
         .regex(/^(\+62|62|0)8[1-9][0-9]{6,9}$/, {
           message: "Phone number is not valid",
-        })
-        .optional(),
+        }),
       password: z.string().min(6),
       confirm_password: z.string().min(6),
       role: z.nativeEnum(Role),
