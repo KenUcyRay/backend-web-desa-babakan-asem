@@ -95,6 +95,7 @@ CREATE TABLE `pengantar` (
     `nik` VARCHAR(191) NOT NULL,
     `type` ENUM('KTP', 'KK', 'SKCK', 'LAINNYA') NOT NULL,
     `keterangan` VARCHAR(191) NOT NULL,
+    `phone` VARCHAR(20) NOT NULL,
     `is_pending` BOOLEAN NOT NULL DEFAULT true,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,

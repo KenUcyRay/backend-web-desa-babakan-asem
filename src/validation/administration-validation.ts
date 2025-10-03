@@ -13,6 +13,9 @@ export class AdministrationValidation {
       .string({ message: "zodErrors.required" })
       .min(1, { message: "zodErrors.required" }),
     type: z.nativeEnum(PengantarType, { message: "zodErrors.invalid_value" }),
+    phone: z
+      .string({ message: "zodErrors.required"})
+      .min(8, { message: "zodErrors.invalid_value"}),
   });
 
   static query: ZodType = z.object({

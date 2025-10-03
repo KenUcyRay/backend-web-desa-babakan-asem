@@ -5,6 +5,7 @@ export interface PengantarCreateRequest {
   nik: string;
   keterangan: string;
   type: PengantarType;
+  phone: string;
 }
 
 export interface QueryAdministrationRequest {

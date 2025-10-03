@@ -23,17 +23,16 @@ model SiteContent {
 model CallCenter {
   id         String   @id @default(uuid())
   name       String   @db.VarChar(255)
-  type       String   @db.VarChar(20)   
+  type       String   @db.VarChar(20)
   number     String   @db.VarChar(20)
   icon       String?  @db.VarChar(50)
   color      String?  @db.VarChar(50)
-  is_active  Boolean  @default(true)    
+  is_active  Boolean  @default(true)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  
+
   @@map("callcenters")
 }
-
 
 model Map {
   id          String   @id @default(uuid())
@@ -102,6 +101,7 @@ model Pengantar {
   nik        String
   type       PengantarType
   keterangan String
+  phone      String
   is_pending Boolean       @default(true)
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
@@ -352,13 +352,12 @@ model regulations {
 
 model Contact {
   id         String      @id @default(uuid())
-  type       ContactType
-  label      String      @db.VarChar(255)  // Nama/label, contoh: "Alamat Kantor Desa"
-  value      String      @db.Text          // Isi data: alamat, nomor telp, email, dll
+  type       ContactType @unique
+  label      String      @db.VarChar(255)
+  value      String      @db.Text
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
 
-  @@unique([type])
   @@map("contacts")
 }
 
@@ -438,6 +437,7 @@ enum PengantarType {
   KTP
   KK
   SKCK
+  PERPINDAHAN_PENDUDUK
   LAINNYA
 }
 
@@ -453,9 +453,4 @@ enum SiteContentType {
   LINK
   IMAGE
   VIDEO
-}
-
-enum CallCenterType {
-  CALL_CENTER
-  WHATSAPP
 }

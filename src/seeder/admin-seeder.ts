@@ -10,7 +10,8 @@ async function createAdminUser() {
     });
     console.log("Existing admin users deleted");
 
-    // Create admin user
+    // command Create admin user
+    // npm run seed-admin
     const hashedPassword = await bcrypt.hash("admin123", 10);
     
     const admin = await prismaClient.user.create({
